@@ -85,6 +85,29 @@ echo 'SELECT * FROM rdb$database;' | \
 > E.g.: `/tmp/firebird:/var/lib/firebird/data`.<br/>
 > This allows accessing database files directly from the host filesystem.
 
+> [!WARNING]
+> **Do not mount a path inside `${{ github.workspace }}` as a volume.**
+> When `actions/checkout` runs after this action (the default order in most workflows), it deletes and recreates the
+> workspace directory (`clean: true` is the default). This removes the host-side mount point, causing the Firebird
+> container to lose its data directory and breaking any tests that rely on mapped database files.
+>
+> Use `${{ runner.temp }}` instead – it persists for the entire job without being touched by checkout:
+>
+> ```yaml
+> volumes: '${{ runner.temp }}/firebird-data:/var/lib/firebird/data'
+> ```
+>
+> If you need tests to access the database files from the runner, pass the same directory to your test command:
+>
+> ```yaml
+> - uses: juarezr/firebirdsql-github-action@v2
+>   with:
+>     volumes: '${{ runner.temp }}/firebird-data:/var/lib/firebird/data'
+> - uses: actions/checkout@v4
+> - name: Run tests
+>   run: ./gradlew test -Ptest.db.mapped=${{ runner.temp }}/firebird-data
+> ```
+
 ### Deprecated v1 parameters
 
 `enable_legacy_client_auth`

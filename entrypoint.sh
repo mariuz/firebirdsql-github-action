@@ -71,6 +71,14 @@ if [ -n "${INPUT_VOLUMES:-}" ]; then
         vol=$(printf '%s' "${vol}" | tr -d '\r')
         if [ -n "${vol}" ]; then
             printf '# Mounting volume: %s\n' "${vol}"
+            host_path="${vol%%:*}"
+            if [ -n "${GITHUB_WORKSPACE:-}" ] && \
+               case "${host_path}" in "${GITHUB_WORKSPACE}/"*) true ;; *) false ;; esac; then
+                echo "## WARNING: Volume host path '${host_path}' is inside \$GITHUB_WORKSPACE."
+                echo "## WARNING: If actions/checkout runs after this step (default), it will delete"
+                echo "## WARNING: the workspace directory (clean: true), breaking the volume mount."
+                echo "## WARNING: Use \${{ runner.temp }} instead to avoid this problem."
+            fi
             volumes_arg="${volumes_arg} --volume ${vol}"
         fi
     done
