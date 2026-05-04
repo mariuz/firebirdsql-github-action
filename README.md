@@ -91,7 +91,8 @@ echo 'SELECT * FROM rdb$database;' | \
 > workspace directory (`clean: true` is the default). This removes the host-side mount point, causing the Firebird
 > container to lose its data directory and breaking any tests that rely on mapped database files.
 >
-> Use `${{ runner.temp }}` instead – it persists for the entire job without being touched by checkout:
+> Use `${{ runner.temp }}` instead – it persists for the entire job without being touched by checkout.
+> The action will automatically create the host directory if it does not exist:
 >
 > ```yaml
 > volumes: '${{ runner.temp }}/firebird-data:/var/lib/firebird/data'

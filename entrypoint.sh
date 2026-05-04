@@ -79,6 +79,10 @@ if [ -n "${INPUT_VOLUMES:-}" ]; then
                 echo "## WARNING: the workspace directory (clean: true), breaking the volume mount."
                 echo "## WARNING: Use \${{ runner.temp }} instead to avoid this problem."
             fi
+            if [ ! -d "${host_path}" ]; then
+                printf '# Creating host directory for volume: %s\n' "${host_path}"
+                mkdir -p "${host_path}"
+            fi
             volumes_arg="${volumes_arg} --volume ${vol}"
         fi
     done
